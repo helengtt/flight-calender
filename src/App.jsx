@@ -1,4 +1,4 @@
-/* Calendar App source url: https://fullcalendar.io/ */
+/* Calendar App source url: https://github.com/fullcalendar/fullcalendar-example-projects/tree/master/react */
 import React from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -13,16 +13,16 @@ export default class App extends React.Component {
   state = {
     reults: [],
     calendarWeekends: true,
-    calendarEvents: []// initial event data
+    calendarEvents: [],// initial event data
   }
 
   render() {
     return (
       <div className='demo-app'>
-        <div className='demo-app-top'>
+        <div className='demo-app-top'>       
           <button onClick={ this.toggleWeekends }>toggle weekends</button>&nbsp;
           <button onClick={ this.gotoPast }>go to a date in the past</button>&nbsp;
-          {/* (also, click a date/time to add an event) */}
+         {/* (also, click a date/time to add an event) */}
         </div>
         <div className='demo-app-calendar'>
           <FullCalendar
@@ -44,7 +44,7 @@ export default class App extends React.Component {
   }
 
   // get flight data in json format, set state
-  componentDidMount () {
+  componentDidMount = () => {
     // fetch('https://dl2.pushbulletusercontent.com/ZB5kmmAZAC8IcvN6MM9ysGQvoLays1PY/load_list.json', { mode: 'no-cors'})
     fetch('http://127.0.0.1:5500/flights_list.json')
       .then(res => res.json())
@@ -66,7 +66,16 @@ export default class App extends React.Component {
     for (let key in results) {
       let value = results[key];
       for (let obj of value) {
-        eventsResult.push({title: `${obj['cabinClassDescription']}: ${obj['seatsAvailable']} available, ${obj['seatsForSale']} for sale`, date: key})
+        let classinfo = `${obj['cabinClassDescription']}: ${obj['seatsForSale']} for sale, ${obj['seatsAvailable']} available`;
+        let eventcolor = function() {
+          if (obj['cabinClassDescription'] === "Business")
+            return "green";
+          if (obj['cabinClassDescription'] === "Economy")
+            return "purple";
+          if (obj['cabinClassDescription'] === "Premium Economy")
+            return "pink";           
+        }
+        eventsResult.push({title: classinfo, date: key, color: eventcolor()})
       }
     }
     return eventsResult
