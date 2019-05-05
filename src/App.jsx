@@ -45,8 +45,7 @@ export default class App extends React.Component {
 
   // get flight data in json format, set state
   componentDidMount = () => {
-    // fetch('https://dl2.pushbulletusercontent.com/ZB5kmmAZAC8IcvN6MM9ysGQvoLays1PY/load_list.json', { mode: 'no-cors'})
-    fetch('http://127.0.0.1:5500/flights_list.json')
+    fetch('https://us-central1-sto-planner.cloudfunctions.net/api/flights/SYD_HND_QF25')
       .then(res => res.json())
       .then(
           (results) => {
@@ -58,15 +57,17 @@ export default class App extends React.Component {
         (error) => {
           return `Error: ${error.message}`
         }
-      )  
+      )
   }
 
   calendarEvents = (results) => {
+    console.log(results);
     let eventsResult = [];
     for (let key in results) {
       let value = results[key];
-      for (let obj of value) {
-        let classinfo = `${obj['cabinClassDescription']}: ${obj['seatsForSale']} for sale, ${obj['seatsAvailable']} available`;
+      console.log(value);
+      for (let obj of value['load']) {
+        let classinfo = `${obj['seatsForSale']} for sale, ${obj['seatsAvailable']} available`;
         let eventcolor = function() {
           if (obj['cabinClassDescription'] === "Business")
             return "green";
