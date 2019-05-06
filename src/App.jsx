@@ -12,7 +12,6 @@ export default class App extends React.Component {
   calendarComponentRef = React.createRef()
   state = {
     flights: [],
-    value:'',
     reults: [],
     calendarWeekends: true,
     calendarEvents: [],// initial event data
@@ -20,7 +19,7 @@ export default class App extends React.Component {
 
   render() {
     const optionList = this.state.flights.map((flight, index) => 
-      <option key={index} value={flight}>{flight}</option>
+      <option key={index+1} value={flight}>{flight}</option>
     );
     return (
       <div className='demo-app'>
@@ -28,12 +27,11 @@ export default class App extends React.Component {
           <button onClick={ this.toggleWeekends }>toggle weekends</button>&nbsp;
           <button onClick={ this.gotoPast }>go to a date in the past</button>&nbsp;
           <label>Flights:
-            <select value={this.state.value} onChange={this.valueChange}>
-              <option></option>
+            <select onChange={this.valueChange}>
+              <option key='0' value=''></option>
               {optionList}
             </select>
           </label>
-         {/* (also, click a date/time to add an event) */}
         </div>
         <div className='demo-app-calendar'>
           <FullCalendar
@@ -72,11 +70,11 @@ export default class App extends React.Component {
 
   valueChange = (event) => {
     this.setState({value: event.target.value});
-    this.flightInfo();
+    this.flightInfo(event.target.value);
   }
 
-  flightInfo = () => {
-    fetch('https://us-central1-sto-planner.cloudfunctions.net/api/flights/{this.state.value}')
+  flightInfo = (value) => {
+    fetch(`https://us-central1-sto-planner.cloudfunctions.net/api/flights/${value}`)
     .then(res => res.json())
     .then(
       (results) => {
