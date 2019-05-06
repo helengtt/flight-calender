@@ -11,17 +11,28 @@ export default class App extends React.Component {
 
   calendarComponentRef = React.createRef()
   state = {
+    flights: [],
+    value:'',
     reults: [],
     calendarWeekends: true,
     calendarEvents: [],// initial event data
   }
 
   render() {
+    const optionList = this.state.flights.map((flight, index) => 
+      <option key={index} value={flight}>{flight}</option>
+    );
     return (
       <div className='demo-app'>
         <div className='demo-app-top'>       
           <button onClick={ this.toggleWeekends }>toggle weekends</button>&nbsp;
           <button onClick={ this.gotoPast }>go to a date in the past</button>&nbsp;
+          <label>Flights:
+            <select value={this.state.value} onChange={this.valueChange}>
+              <option></option>
+              {optionList}
+            </select>
+          </label>
          {/* (also, click a date/time to add an event) */}
         </div>
         <div className='demo-app-calendar'>
@@ -45,27 +56,45 @@ export default class App extends React.Component {
 
   // get flight data in json format, set state
   componentDidMount = () => {
-    fetch('https://us-central1-sto-planner.cloudfunctions.net/api/flights/SYD_HND_QF25')
-      .then(res => res.json())
-      .then(
-          (results) => {
-            this.setState({
-              results: results,
-              calendarEvents: this.calendarEvents(results),
-            });
-          },
-        (error) => {
-          return `Error: ${error.message}`
-        }
-      )
+    fetch('https://us-central1-sto-planner.cloudfunctions.net/api/flights')
+    .then(res => res.json())
+    .then(
+      (res) => {
+        this.setState({
+          flights: res,
+        });
+      },
+      (err) => {
+        return `Error: ${err.message}`
+      }
+    )
+  }
+
+  valueChange = (event) => {
+    this.setState({value: event.target.value});
+    this.flightInfo();
+  }
+
+  flightInfo = () => {
+    fetch('https://us-central1-sto-planner.cloudfunctions.net/api/flights/{this.state.value}')
+    .then(res => res.json())
+    .then(
+      (results) => {
+        this.setState({
+          results: results,
+          calendarEvents: this.calendarEvents(results),
+        });
+      },
+      (error) => {
+        return `Error: ${error.message}`
+      }
+    )
   }
 
   calendarEvents = (results) => {
-    console.log(results);
     let eventsResult = [];
     for (let key in results) {
       let value = results[key];
-      console.log(value);
       for (let obj of value['load']) {
         let classinfo = `${obj['seatsForSale']} for sale, ${obj['seatsAvailable']} available`;
         let eventcolor = function() {
